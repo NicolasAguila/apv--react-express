@@ -1,18 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Alerta from './Alerta'
 import usePacientes from '../hooks/usePacientes';
+
 
 const Formulario = () => {
 
     const [ nombre, setNombre ] = useState('')
     const [ propietario, setPropietario ] = useState('')
     const [ email, setEmail ] = useState('')
-    const [ fecha, setFecha ] = useState(Date.now())
+    const [ fecha, setFecha ] = useState('')
     const [ sintomas, setSintomas ] = useState('')
+    const [ id, setId ] = useState(null)
 
     const [ alerta, setAlerta ]= useState({})
 
-    const {  } = usePacientes()
+    const { guardarPaciente, paciente } = usePacientes()
+
+    useEffect(() => {
+        if(paciente?.nombre){
+            setNombre(paciente.nombre)
+            setPropietario(paciente.propietario)
+            setEmail(paciente.email)
+            setFecha(new Date(paciente.fecha).toISOString())
+            setSintomas(paciente.sintomas)
+            setId(paciente._id)
+        }
+    }, [paciente])
 
 
     const handleSubmit = e => {
@@ -27,14 +40,17 @@ const Formulario = () => {
             return;
         }
 
-
+        setAlerta({})
+        guardarPaciente({nombre, propietario, email, fecha, sintomas, id})
 
     }
     const { msg } = alerta
   return (
     <>
-        <p className="text-lg text-center mb-10">
-            añade tus pacientes y {''}
+        <h2 className="font-black text-3xl text-center">Administrador de Pacientes</h2>
+
+        <p className="text-xl mt-5 mb-10 text-center">
+            Añade tus pacientes y {''}
             <span className="text-indigo-600 font-bold">Administralos</span>
         </p>
 
@@ -117,7 +133,7 @@ const Formulario = () => {
                 type="submit"
                 className="bg-indigo-600 w-full p-3 text-white uppercase font-bold hover:bg-indigo-700 cursor-pointer
                 transition-colors"
-                value="Agregar Paciente"
+                value={ id ? 'Guardar Cambios' : 'Agregar Paciente'}
             />
         </form>
         {msg && <Alerta alerta={alerta} />}
